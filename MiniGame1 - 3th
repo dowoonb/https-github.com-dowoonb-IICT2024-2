@@ -16,6 +16,7 @@ let explanationImage;
 let explanationStartTime = -1;
 let explanationDuration = 5000; // 설명 화면 표시 시간
 let gifBackground;
+let mini1next;
 
 // 결과 이미지를 저장할 변수
 let resultImages = {
@@ -67,20 +68,21 @@ function preload() {
   resultGifImages.Win = loadImage('assets/MiniGame1_Asset_RabbitWin.png');
   resultGifImages.Lose = loadImage('assets/MiniGame1_Asset_RabbitLose.png');
   resultGifImages.Draw = loadImage('assets/MiniGame1_Asset_RabbitDraw.png');
+  mini1next = loadImage('assets/game1_Asset_result_Nextbtn2.png')
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(960, 540);  // 화면 크기를 960x540으로 설정
 }
 
 function draw() {
   if (!gameStarted) {
     // 시작 화면
     background(preGameBgImage);
-    let startButtonWidth = width * 0.2;
-    let startButtonHeight = height * 0.09;
-    let startButtonX = (width - startButtonWidth) / 2;
-    let startButtonY = height * 0.88;
+    let startButtonWidth = 960 * 0.2;
+    let startButtonHeight = 540 * 0.09;
+    let startButtonX = (960 - startButtonWidth) / 2;
+    let startButtonY = 540 * 0.88;
 
     if (
       mouseX > startButtonX &&
@@ -90,15 +92,13 @@ function draw() {
     ) {
       startButtonWidth *= 1.14;
       startButtonHeight *= 1.14;
-      startButtonX = (width - startButtonWidth) / 2;
-      startButtonY = height * 0.88;
+      startButtonX = (960 - startButtonWidth) / 2;
+      startButtonY = 540 * 0.88;
     }
 
     image(startButtonImage, startButtonX, startButtonY, startButtonWidth, startButtonHeight);
   } else if (millis() - explanationStartTime < explanationDuration) {
     // 설명 화면
-
-    
     background(bgImage);
 
     displayGameImages();
@@ -106,25 +106,22 @@ function draw() {
     // 설명 이미지
     image(
       explanationImage,
-      width / 2 - explanationImage.width * 0.65,
-      height / 2 - explanationImage.height * 0.5,
+      960 * 0.2,  // 960에 맞춰서 30% 위치
+      540 / 2 - explanationImage.height * 0.5,  // 세로 중앙
       explanationImage.width * 1.3,
       explanationImage.height * 1.3
     );
 
     // 토끼 gif
-
-
-    // gifBackground는 showResultGif가 true일 때만 그리지 않음
-    image(gifBackground, -20, 70, width / 1.5, height / 1.5);
+    image(gifBackground, -20, 70, 960 / 1.5, 540 / 1.5);
   } else if (showResultGif) {
     // 결과 PNG 화면
-  
-    if (gameResult === "Lose") resultGif = resultGifImages.Win;
-    if (gameResult === "Win") resultGif = resultGifImages.Lose;
+    let resultGif;
+    if (gameResult === "Lose") resultGif = resultGifImages.Lose;
+    if (gameResult === "Win") resultGif = resultGifImages.Win;
     if (gameResult === "Draw") resultGif = resultGifImages.Draw;
 
-    image(resultGif, width / 2 - 576, height / 2 - 245, 280, 400);
+    image(resultGif, 16, 540 / 2 - 235, 250, 380);
 
     // 3초 후 결과 화면 종료
     if (millis() - resultGifStartTime >= 3000) {
@@ -134,12 +131,12 @@ function draw() {
   } else if (!gameEnded) {
     // 게임 화면
     background(bgImage);
-    
-    if(showResultGif){
-     image(gifBackground, -20, 70, width / 1.5, height / 1.5)}
 
+    if (showResultGif) {
+      image(gifBackground, 30, 70, 960 / 1.5,  540 / 1.5);
+    }
 
-    image(stopwatchImage, windowWidth / 2 - 40, windowHeight - 120, 80, 90);
+    image(stopwatchImage, 960 / 2 - 40, 540 - 120, 80, 90);
 
     if (millis() - lastChangeTime > changeInterval) {
       currentImageIndex = (currentImageIndex + 1) % images.length;
@@ -151,7 +148,7 @@ function draw() {
         countdown--;
         countdownStartTime = millis();
       } else if (!gameEnded) {
-        gameResultImage = { image: resultImages.Lose, width: windowWidth, height: windowHeight };
+        gameResultImage = { image: resultImages.Lose, width: 960, height: 540 };
         gameEnded = true;
       }
     }
@@ -160,74 +157,77 @@ function draw() {
     textFont(customFont);
     textSize(countdownFontSize);
     textAlign(CENTER, CENTER);
-    text(countdown, width / 2, height * 0.90);
+    text(countdown, 960 / 2, 540 * 0.867);
 
     displayGameImages();
   }
 
   if (gameEnded) {
-    // 최종 결과 화면
+    // 결과 이미지의 크기와 위치 계산
     let resultWidth = gameResultImage.width;
     let resultHeight = gameResultImage.height;
+    let resultX = 960 * 0.5 - resultWidth * 0.5;
+    let resultY = 540 * 0.5 - resultHeight * 0.5;
+
+    // Next 버튼 위치와 크기 정의
+    let nextButtonWidth = 120
+    let nextButtonHeight = 50
+    let nextButtonX = 960 * 0.5 - nextButtonWidth / 2;  // 화면 중앙에 위치하도록 설정
+    let nextButtonY = 327  // 하단에 배치
+
     image(
       gameResultImage.image,
-      width * 0.5 - resultWidth * 0.5,
-      height * 0.5 - resultHeight * 0.5,
+      resultX,
+      resultY,
       resultWidth,
       resultHeight
     );
-  }
-}
 
-function displayGameImages() {
-  // 중앙 이미지 표시
-  let img = images[currentImageIndex];
-  let imgSize = width * 0.15;
-  let centerX = width * 0.25;
-  let centerY = height * 0.55 - imgSize * 0.5;
-  image(img, centerX, centerY, imgSize, imgSize);
-  
 
-  // 물음표 표시
-  let questionSize = width * 0.11;
-  image(questionMarkImage, width * 0.6, height * 0.47, questionSize, questionSize);
-
-  // 선택 버튼들 표시
-  for (let i = 0; i < userChoiceImages.length; i++) {
-    let choiceX = width * 0.8;
-    let choiceY = height * (0.2 + i * 0.23);
-    let choiceSize = width * 0.1;
-
-    if (selectedIndex === i) {
-      image(clickedImages[i], choiceX, choiceY, choiceSize, choiceSize);
-    } else if (isHoveringChoice[i]) {
-      image(clickedImages[i], choiceX, choiceY, choiceSize, choiceSize);
-    } else {
-      image(userChoiceImages[i], choiceX, choiceY, choiceSize, choiceSize);
+    // 먼저 Next 버튼을 그리기 (결과 이미지보다 위에 오도록)
+    if (
+      mouseX > nextButtonX &&
+      mouseX < nextButtonX + nextButtonWidth &&
+      mouseY > nextButtonY &&
+      mouseY < nextButtonY + nextButtonHeight
+    ) {
+      image(mini1next, nextButtonX, nextButtonY, nextButtonWidth, nextButtonHeight);
     }
 
+    // 결과 이미지 표시
+ 
+    // 클릭 시 Next 버튼 처리
+    if (mouseIsPressed) {
+      if (
+        mouseX > nextButtonX &&
+        mouseX < nextButtonX + nextButtonWidth &&
+        mouseY > nextButtonY &&
+        mouseY < nextButtonY + nextButtonHeight
+      ) {
+        console.log("Next button clicked");
+        // 버튼 클릭 시 추가 기능을 처리합니다.
+      }
+    }
   }
 }
-
 
 function displayGameImages() {
   // 중앙 이미지 표시
   let img = images[currentImageIndex];
-  let imgSize = width * 0.15;
-  let centerX = width * 0.25;
-  let centerY = height * 0.55 - imgSize * 0.5;
+  let imgSize = 960 * 0.15;
+  let centerX = 960 * 0.25;
+  let centerY = 540 * 0.55 - imgSize * 0.5;
   image(img, centerX, centerY, imgSize, imgSize);
-  
 
   // 물음표 표시
-  let questionSize = width * 0.11;
-  image(questionMarkImage, width * 0.6, height * 0.47, questionSize, questionSize);
+  let questionSize = 960 * 0.11;
+  image(questionMarkImage, 960 * 0.6, 540 * 0.47, questionSize, questionSize);
 
   // 선택 버튼들 표시
   for (let i = 0; i < userChoiceImages.length; i++) {
-    let choiceX = width * 0.8;
-    let choiceY = height * (0.2 + i * 0.23);
-    let choiceSize = width * 0.1;
+    let choiceX = 960 * 0.8;
+    let choiceY = 540 * (0.2 + i * 0.23);
+    let choiceSize = 960 * 0.1;
 
     if (selectedIndex === i) {
       image(clickedImages[i], choiceX, choiceY, choiceSize, choiceSize);
@@ -241,9 +241,9 @@ function displayGameImages() {
 
 function mouseMoved() {
   for (let i = 0; i < userChoiceImages.length; i++) {
-    let choiceX = width * 0.8;
-    let choiceY = height * (0.2 + i * 0.23);
-    let choiceSize = width * 0.1;
+    let choiceX = 960 * 0.8;
+    let choiceY = 540 * (0.2 + i * 0.23);
+    let choiceSize = 960 * 0.1;
 
     if (
       mouseX > choiceX &&
@@ -257,15 +257,15 @@ function mouseMoved() {
     }
   }
 }
+
 let canSelect = false; // 클릭을 허용할지 여부를 제어하는 변수
 
 function mousePressed() {
-  // 게임이 시작되기 전에 시작 버튼을 클릭하는 부분
   if (!gameStarted) {
-    let startButtonWidth = width * 0.2;
-    let startButtonHeight = height * 0.09;
-    let startButtonX = (width - startButtonWidth) / 2;
-    let startButtonY = height * 0.88;
+    let startButtonWidth = 960 * 0.2;
+    let startButtonHeight = 540 * 0.09;
+    let startButtonX = (960 - startButtonWidth) / 2;
+    let startButtonY = 540 * 0.88;
 
     if (
       mouseX > startButtonX &&
@@ -273,24 +273,21 @@ function mousePressed() {
       mouseY > startButtonY &&
       mouseY < startButtonY + startButtonHeight
     ) {
-      // 게임 시작 버튼 클릭 처리
       gameStarted = true;
-      explanationStartTime = millis(); // 설명 화면 타이머 시작
-      countdownStartTime = millis(); // 카운트다운 타이머 시작
-      canSelect = false; // 설명 화면 동안 선택을 막음
+      explanationStartTime = millis();
+      countdownStartTime = millis();
+      canSelect = false;
     }
   } else {
-    // 설명 화면이 끝난 후, 선택을 허용
     if (millis() - explanationStartTime >= explanationDuration) {
-      canSelect = true; // 설명 화면이 끝나면 선택 허용
+      canSelect = true;
     }
 
-    // 선택지를 클릭할 수 있는지 여부를 체크
     if (canSelect) {
       for (let i = 0; i < userChoiceImages.length; i++) {
-        let choiceX = width * 0.8;
-        let choiceY = height * (0.2 + i * 0.25);
-        let choiceSize = width * 0.1;
+        let choiceX = 960 * 0.8;
+        let choiceY = 540 * (0.2 + i * 0.25);
+        let choiceSize = 960 * 0.1;
 
         if (
           mouseX > choiceX &&
@@ -306,8 +303,6 @@ function mousePressed() {
     }
   }
 }
-
-
 
 function determineWinner() {
   if (selectedIndex === -1) return;
