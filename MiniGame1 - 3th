@@ -160,7 +160,7 @@ function draw() {
     textFont(customFont);
     textSize(countdownFontSize);
     textAlign(CENTER, CENTER);
-    text(countdown, width / 2, height * 0.88);
+    text(countdown, width / 2, height * 0.90);
 
     displayGameImages();
   }
